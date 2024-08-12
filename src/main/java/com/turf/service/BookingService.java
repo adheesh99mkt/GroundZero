@@ -21,4 +21,6 @@ public interface BookingService {
 
 	List<BookingEntity> getBookingOfTurf(@Valid Long turfId);
 
+	List<BookingEntity> getBookingOfPlayer(@Valid Long playerId) throws NotFoundException;
+
 }

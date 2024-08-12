@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turf.DTO.ApiResponse;
 import com.turf.DTO.RemoveGameFromTurfDTO;
+import com.turf.DTO.TurfConfirmationDTO;
 import com.turf.DTO.TurfRegDTO;
 import com.turf.DTO.UpdateTurfDTO;
 import com.turf.service.TurfService;
@@ -53,6 +54,18 @@ public class TurfController {
 	public ResponseEntity<?> removeGamesFromTurf(@PathVariable @Valid Long turfId,@RequestBody RemoveGameFromTurfDTO dto){
 		try {
 			ApiResponse resp=turfService.removeGamesFromTurf(turfId,dto);
+			return ResponseEntity.ok(resp);
+		}
+		catch(Exception e) {
+			return ResponseEntity.
+					status(HttpStatus.NOT_FOUND).
+					body(new ApiResponse(e.getMessage()));
+		}
+	}
+	@PutMapping("/turfReg/confirm/{adminId}")
+	public ResponseEntity<?> confirmTurfReg(@PathVariable @Valid Long adminId,@RequestBody TurfConfirmationDTO dto){
+		try {
+			ApiResponse resp=turfService.confirmTurfReg(adminId,dto);
 			return ResponseEntity.ok(resp);
 		}
 		catch(Exception e) {

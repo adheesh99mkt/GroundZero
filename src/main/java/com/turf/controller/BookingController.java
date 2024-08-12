@@ -76,5 +76,17 @@ public class BookingController {
 					body(new ApiResponse(e.getMessage()));
 		}
 	}
+	
+	@GetMapping("/user/mybookings/{playerId}")
+	public ResponseEntity<?> getBookingsOfPlayer(@PathVariable @Valid Long playerId){
+		try {
+			return ResponseEntity.ok(bookingService.getBookingOfPlayer(playerId));
+		}
+		catch(Exception e) {
+			return ResponseEntity.
+					status(HttpStatus.NOT_FOUND).
+					body(new ApiResponse(e.getMessage()));
+		}
+	}
 }
 

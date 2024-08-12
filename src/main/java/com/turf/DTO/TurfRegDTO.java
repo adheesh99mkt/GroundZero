@@ -42,4 +42,6 @@ public class TurfRegDTO {
 	@NotBlank(message = "Address of turf is mandatory")
 	private AddressDTO address;
 	
+	
+	
 }

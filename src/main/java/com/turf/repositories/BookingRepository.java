@@ -28,5 +28,7 @@ public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
 	@Query("SELECT b FROM BookingEntity b WHERE b.turf.id = :turfId ORDER BY b.date ASC")
 	List<BookingEntity> findByTurfId(@Param("turfId") Long turfId);
 
+	
+
 
 }

@@ -2,6 +2,7 @@ package com.turf.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -121,6 +122,27 @@ public class BookingServiceImpl implements BookingService {
 				.map(booking -> 
 				modelMapper.map(booking,BookingEntity.class)) //Stream<dto>
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<BookingEntity> getBookingOfPlayer(@Valid Long playerId) throws NotFoundException {
+		UserEntity user = userRepository.findById(playerId).orElseThrow(()->new NotFoundException("no such user!"));
+		
+		List<BookingEntity> newbookings=new ArrayList<BookingEntity>();
+		List<BookingEntity> bookings= bookingRepository.findAll() 
+				.stream() 
+				.map(booking -> 
+				modelMapper.map(booking,BookingEntity.class)) //Stream<dto>
+				.collect(Collectors.toList());
+		for (BookingEntity book : bookings) {
+			if(book.getPlayers().contains(user)) {
+				newbookings.add(book);
+			}
+			
+		}
+		return newbookings;
+		
+		
 	}
 	
 

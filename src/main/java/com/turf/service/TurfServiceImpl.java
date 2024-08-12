@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.turf.DTO.ApiResponse;
 import com.turf.DTO.GameDTO;
 import com.turf.DTO.RemoveGameFromTurfDTO;
+import com.turf.DTO.TurfConfirmationDTO;
 import com.turf.DTO.TurfRegDTO;
 import com.turf.DTO.UpdateTurfDTO;
 import com.turf.custexception.ApiException;
@@ -111,6 +112,18 @@ public class TurfServiceImpl implements TurfService {
 			
 		}
 		throw new ApiException("This turf is not under your ownership");
+	}
+
+	@Override
+	public ApiResponse confirmTurfReg(@Valid Long adminId, TurfConfirmationDTO dto) throws NotFoundException {
+		TurfEntity turf=turfRepository.findById(dto.getTurf_id()).orElseThrow(()->new NotFoundException("Turf is not valid"));
+		UserEntity admin=userRepository.findById(adminId).orElseThrow(()->new NotFoundException("Admin is not valid"));
+		if(admin.getRole()==Role.ADMIN) {
+			turf.setStatus(dto.getStatus());
+			turfRepository.save(turf);
+			return new ApiResponse(turf.getTurf_name()+" is confirmed");
+		}
+		throw new ApiException("Unauthorised functionality!");
 	}
 
 }
