@@ -48,15 +48,15 @@ public class BookingEntity extends BaseEntity {
 		private BookingStatus status;
 		
 		//for multiple players booking in same slot we have to make the relation one to many
-		@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+		@OneToMany(fetch = FetchType.EAGER)
 		//@JoinColumn(name="player_id",nullable=false)
 		private List<UserEntity>  players=new ArrayList<UserEntity>();
 		
-		@OneToOne(cascade = CascadeType.ALL)
+		@OneToOne
 		@JoinColumn(name="game_id",nullable=false)
 		private GameEntity game;
 		
-		@OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+		@OneToOne
 		@JsonIgnore
 		@JoinColumn(name="turf_id",nullable=false)
 		private TurfEntity turf;

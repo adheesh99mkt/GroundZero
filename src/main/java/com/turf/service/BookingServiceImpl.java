@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.turf.DTO.ApiResponse;
 import com.turf.DTO.BookingDTO;
 import com.turf.DTO.BookingGetAllRespDTO;
+import com.turf.DTO.TurfBookingConfirmationDTO;
 import com.turf.DTO.UpdateBookingDTO;
+import com.turf.custexception.ApiException;
 import com.turf.custexception.NotFoundException;
 import com.turf.entities.BookingEntity;
 import com.turf.entities.GameEntity;
@@ -96,9 +98,9 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingGetAllRespDTO> getAll() throws NotFoundException {
+	public List<BookingGetAllRespDTO> getAllBydate() throws NotFoundException {
 		List<BookingGetAllRespDTO> bookings=new ArrayList<BookingGetAllRespDTO>();
-		List<BookingGetAllRespDTO> newbookings=bookingRepository.findAll() 
+		List<BookingGetAllRespDTO> newbookings=bookingRepository.findBookingByDate() 
 				.stream()
 				.map(booking -> 
 				modelMapper.map(booking,BookingGetAllRespDTO.class)) //Stream<dto>
@@ -143,6 +145,66 @@ public class BookingServiceImpl implements BookingService {
 		return newbookings;
 		
 		
+	}
+
+	@Override
+	public ApiResponse confirmTurfBooking(@Valid Long adminId, TurfBookingConfirmationDTO dto) throws NotFoundException {
+	BookingEntity book=bookingRepository.findById(dto.getBooking_id()).orElseThrow(()->new NotFoundException("Booking is not valid"));
+	UserEntity admin=userRepository.findById(adminId).orElseThrow(()->new NotFoundException("Admin is not valid"));
+	if(admin.getRole()==Role.ADMIN) {
+		book.setStatus(dto.getStatus());
+		bookingRepository.save(book);
+		return new ApiResponse(book.getTurf().getTurf_name()+" booking is confirmed");
+	}
+	throw new ApiException("Unauthorised functionality!");
+	}
+
+	@Override
+	public ApiResponse cancelBooking(@Valid Long userId, @Valid Long bookingId) throws NotFoundException {
+		UserEntity user = userRepository.findById(userId).orElseThrow(()->new NotFoundException("no such user!"));
+		BookingEntity book=bookingRepository.findById(bookingId).orElseThrow(()->new NotFoundException("Booking is not valid"));
+		if(user.getRole()==Role.ADMIN) {
+			bookingRepository.delete(book);
+			return new ApiResponse("Booking cancelled by the Admin!");
+		}
+		if(user.getRole()==Role.OWNER && book.getTurf().getOwner().getId()==userId) {
+			bookingRepository.delete(book);
+			return new ApiResponse("Booking cancelled by the Admin!");
+		}
+		if(user.getRole()==Role.PLAYER && book.getPlayers().contains(user)) {
+			int no=0;
+			for (UserEntity u : book.getPlayers()) {
+				no++;
+				
+			}
+			if(no>1) {
+				book.removePlayer(user);
+				bookingRepository.save(book);
+				return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
+			}
+			else {
+				bookingRepository.delete(book);
+				return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
+			}
+			
+		}
+		throw new ApiException("Unauthorised functionality!");
+	}
+
+	@Override
+	public List<BookingGetAllRespDTO> getAll() throws NotFoundException {
+		List<BookingGetAllRespDTO> bookings=new ArrayList<BookingGetAllRespDTO>();
+		List<BookingGetAllRespDTO> newbookings=bookingRepository.findAll() 
+				.stream()
+				.map(booking -> 
+				modelMapper.map(booking,BookingGetAllRespDTO.class)) //Stream<dto>
+				.collect(Collectors.toList());
+		for (BookingGetAllRespDTO book : newbookings) {
+			book.setGame_id(bookingRepository.findById(book.getId()).orElseThrow(()->new NotFoundException("Exception")).getGame().getId());
+			book.setTurf_id(bookingRepository.findById(book.getId()).orElseThrow(()->new NotFoundException("Exception")).getTurf().getId());
+			bookings.add(book);
+		}
+		return bookings;
 	}
 	
 

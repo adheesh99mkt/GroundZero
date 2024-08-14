@@ -5,7 +5,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -151,6 +151,32 @@ public class UserController {
 			System.out.println(e);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 					.body(new ApiResponse(e.getMessage()));
+		}
+	}
+	
+	//delete user
+	@DeleteMapping("/{adminId}/{userId}")
+	public ResponseEntity<?> deleteUserByAdmin(@PathVariable @Valid Long adminId,@PathVariable @Valid Long userId ){
+		try {
+			ApiResponse resp=userService.deleteUserByAdmin(adminId,userId);
+			return ResponseEntity.ok(resp);
+		}
+		catch(Exception e) {
+			return ResponseEntity.
+					status(HttpStatus.NOT_FOUND).
+					body(new ApiResponse(e.getMessage()));
+		}
+	}
+	@DeleteMapping("/{userId}")
+	public ResponseEntity<?> deleteUserByAdmin(@PathVariable @Valid Long userId ){
+		try {
+			ApiResponse resp=userService.deleteUser(userId);
+			return ResponseEntity.ok(resp);
+		}
+		catch(Exception e) {
+			return ResponseEntity.
+					status(HttpStatus.NOT_FOUND).
+					body(new ApiResponse(e.getMessage()));
 		}
 	}
 }

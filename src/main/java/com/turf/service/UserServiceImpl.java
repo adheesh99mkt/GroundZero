@@ -9,21 +9,21 @@ import javax.validation.Valid;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.turf.DTO.ApiResponse;
-
 import com.turf.DTO.ChangePasswordDTO;
 import com.turf.DTO.SignInRequest;
-
 import com.turf.DTO.SignUp;
 import com.turf.DTO.UserRespDTO;
 import com.turf.DTO.UserUpdateDTO;
 import com.turf.custexception.ApiException;
 import com.turf.custexception.NotFoundException;
+import com.turf.entities.BookingEntity;
+import com.turf.entities.Role;
 import com.turf.entities.UserEntity;
+import com.turf.repositories.BookingRepository;
 import com.turf.repositories.UserRepository;
 @Service
 @Transactional
@@ -34,6 +34,9 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	private ModelMapper modelMapper;
+	
+	@Autowired
+	private BookingRepository bookingRepository;
 	
 //	@Autowired
 //	private PasswordEncoder encoder;
@@ -127,6 +130,50 @@ public class UserServiceImpl implements UserService{
 			
 		}
 		return new ApiResponse("please check your email and old password!");
+	}
+
+	@Override
+	public ApiResponse deleteUserByAdmin(@Valid Long adminId, @Valid Long userId) throws NotFoundException {
+		Optional<UserEntity> useropt = userRepository.findById(userId);
+		UserEntity user = useropt.orElseThrow(() -> 
+		new NotFoundException("Invalid User ID!!!!"));
+		Optional<UserEntity> adminopt = userRepository.findById(userId);
+		UserEntity admin = adminopt.orElseThrow(() -> 
+		new NotFoundException("Invalid User ID!!!!"));
+		if(admin.getRole()==Role.ADMIN) {
+			userRepository.delete(user);
+			return new ApiResponse("The user "+user.getUserName()+" deleted by Admin");
+		}
+		throw new ApiException("Unauthorised functionality!");
+	}
+
+	@Override
+	public ApiResponse deleteUser(@Valid Long userId) throws NotFoundException {
+		Optional<UserEntity> useropt = userRepository.findById(userId);
+		UserEntity user = useropt.orElseThrow(() -> 
+		new NotFoundException("Invalid User ID!!!!"));
+		List<BookingEntity> bookings=bookingRepository.findAll();
+		for (BookingEntity book : bookings) {
+			if(book.getPlayers().contains(user)) {
+				int no=0;
+				for (UserEntity us : book.getPlayers()) {
+					no++;
+					if(no>1) {
+						book.removePlayer(user);
+						bookingRepository.save(book);
+						//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
+					}
+					else {
+						bookingRepository.delete(book);
+						//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
+					}
+				}
+			
+			}
+		}
+		
+		userRepository.delete(user);
+		return new ApiResponse("Hey "+user.getUserName()+", Your Account deleted successfully!");
 	}
 
 }

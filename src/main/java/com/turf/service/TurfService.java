@@ -19,4 +19,6 @@ public interface TurfService {
 
 	ApiResponse confirmTurfReg(@Valid Long adminId, @Valid TurfConfirmationDTO dto)throws NotFoundException;
 
+	ApiResponse deleteTurf(@Valid Long adminId, @Valid Long turfId)throws NotFoundException;
+
 }

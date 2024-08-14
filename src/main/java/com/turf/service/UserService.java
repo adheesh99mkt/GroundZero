@@ -29,5 +29,9 @@ public interface UserService {
 	UserRespDTO updateUser(@Valid Long userId, UserUpdateDTO dto) throws NotFoundException;
 
 	ApiResponse changePass(ChangePasswordDTO dto);
+
+	ApiResponse deleteUserByAdmin(@Valid Long adminId, @Valid Long userId)throws NotFoundException;
+
+	ApiResponse deleteUser(@Valid Long userId)throws NotFoundException;
 	
 }

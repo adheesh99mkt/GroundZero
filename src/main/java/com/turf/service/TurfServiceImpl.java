@@ -126,4 +126,15 @@ public class TurfServiceImpl implements TurfService {
 		throw new ApiException("Unauthorised functionality!");
 	}
 
+	@Override
+	public ApiResponse deleteTurf(@Valid Long adminId, @Valid Long turfId) throws NotFoundException {
+		TurfEntity turf=turfRepository.findById(turfId).orElseThrow(()->new NotFoundException("Turf is not valid"));
+		UserEntity admin=userRepository.findById(adminId).orElseThrow(()->new NotFoundException("Admin is not valid"));
+		if(admin.getRole()==Role.ADMIN) {
+			turfRepository.delete(turf);
+			return new ApiResponse(turf.getTurf_name()+" Turf deleted by Admin");
+		}
+		throw new ApiException("Unauthorised functionality!");
+	}
+
 }

@@ -52,11 +52,11 @@ public class TurfEntity extends BaseEntity {
 	@Column(name="status",length = 20)
 	private TurfStatus status;
 	
-	@OneToMany(cascade = CascadeType.ALL ,fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "turf_id") 
 	private List<GameEntity> games=new ArrayList<GameEntity>();
 	
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne
 	@JoinColumn(name="owner_id",nullable=false)
 	private UserEntity owner;
 	
