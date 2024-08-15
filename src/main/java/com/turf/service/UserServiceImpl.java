@@ -141,6 +141,26 @@ public class UserServiceImpl implements UserService{
 		UserEntity admin = adminopt.orElseThrow(() -> 
 		new NotFoundException("Invalid User ID!!!!"));
 		if(admin.getRole()==Role.ADMIN) {
+			List<BookingEntity> bookings=bookingRepository.findAll();
+			for (BookingEntity book : bookings) {
+				if(book.getPlayers().contains(user)) {
+					int no=0;
+					for (UserEntity us : book.getPlayers()) {
+						no++;
+						
+					}
+					if(no>1) {
+						book.removePlayer(user);
+						bookingRepository.save(book);
+						//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
+					}
+					else {
+						bookingRepository.delete(book);
+						//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
+					}
+				
+				}
+			}
 			userRepository.delete(user);
 			return new ApiResponse("The user "+user.getUserName()+" deleted by Admin");
 		}
@@ -158,15 +178,16 @@ public class UserServiceImpl implements UserService{
 				int no=0;
 				for (UserEntity us : book.getPlayers()) {
 					no++;
-					if(no>1) {
-						book.removePlayer(user);
-						bookingRepository.save(book);
-						//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
-					}
-					else {
-						bookingRepository.delete(book);
-						//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
-					}
+					
+				}
+				if(no>1) {
+					book.removePlayer(user);
+					bookingRepository.save(book);
+					//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
+				}
+				else {
+					bookingRepository.delete(book);
+					//return new ApiResponse("Hey! "+user.getUserName()+ ",your booking for "+book.getTurf().getTurf_name()+" is cancelled");
 				}
 			
 			}

@@ -26,8 +26,14 @@ import lombok.ToString;
 @Table(name = "payments")
 public class PaymentEntity extends BaseEntity {
 	
-	@Column(name="amount",nullable=false,length=10)
+	@Column(name="amount",nullable=false)
 	private double amount;
+	
+	@Column(name="player_accNo",nullable=false,length=15)
+	private Long player_accNo;
+	
+	@Column(name="admin_accNo",nullable=false,length=15)
+	private Long admin_accNo;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name="status",length=15)
@@ -40,6 +46,8 @@ public class PaymentEntity extends BaseEntity {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="booking_id",nullable=false)
 	private BookingEntity booking;
+	
+	
 
 	public PaymentEntity(double amount,  UserEntity player, BookingEntity booking) {
 		super();
